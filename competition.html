@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calendrier, classements et écoles | Kelasi Football League</title>
+<meta name="description" content="Résultats, classements des poules, statistiques et annuaire des 64 écoles de la Kelasi Football League.">
+<meta name="theme-color" content="#15112B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{cy:'#1AB0CB',pu:'#7A2A8E',ye:'#F9B81C',pk:'#F2557E',ink:'#15112B'},fontFamily:{d:['Anton','Impact','Arial Narrow','sans-serif'],b:['Barlow','system-ui','sans-serif']}}}}</script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{font-family:Barlow,system-ui,sans-serif;background:#f7f3ea;color:#17152c;line-height:1.6}
+h1,h2,.d{font-family:Anton,Impact,'Arial Narrow',sans-serif;font-weight:400;line-height:.95;letter-spacing:.02em;text-transform:uppercase}
+:focus-visible{outline:3px solid #F9B81C;outline-offset:3px}
+.hidden{display:none!important}
+.scroll-x{overflow-x:auto}
+</style>
+</head>
+<body>
+<header class="bg-ink text-white">
+  <div class="mx-auto flex max-w-5xl flex-wrap items-center gap-4 px-4 py-5">
+    <a href="index.html" class="min-h-11 rounded-full border border-white/40 px-4 py-2 text-sm font-semibold">← Retour au site</a>
+    <h1 class="mr-auto text-3xl sm:text-5xl">Compétition</h1>
+    <a href="ecole.html" class="min-h-11 rounded-full bg-ye px-4 py-2 text-sm font-bold text-ink">Espace école</a>
+  </div>
+  <nav aria-label="Rubriques" class="mx-auto flex max-w-5xl gap-2 overflow-x-auto px-4 pb-4 text-sm font-bold">
+    <a data-tab="calendrier" href="#calendrier" class="shrink-0 rounded-full border border-white/30 px-4 py-2">Calendrier et résultats</a>
+    <a data-tab="classement" href="#classement" class="shrink-0 rounded-full border border-white/30 px-4 py-2">Classements</a>
+    <a data-tab="stats" href="#stats" class="shrink-0 rounded-full border border-white/30 px-4 py-2">Buteurs et passeurs</a>
+    <a data-tab="annuaire" href="#annuaire" class="shrink-0 rounded-full border border-white/30 px-4 py-2">Annuaire des écoles</a>
+  </nav>
+  <div class="flex h-2" aria-hidden="true"><i class="flex-1 bg-cy"></i><i class="flex-1 bg-pu"></i><i class="flex-1 bg-ye"></i><i class="flex-1 bg-pk"></i></div>
+</header>
+
+<main class="mx-auto max-w-5xl px-4 py-8 pb-20">
+  <p id="notice" role="status" class="hidden mb-6 rounded-xl bg-pk/20 px-4 py-3 font-semibold"></p>
+
+  <section id="p-calendrier" aria-labelledby="h-cal">
+    <h2 id="h-cal" class="text-3xl sm:text-4xl">Calendrier et résultats</h2>
+    <div class="mt-4 flex flex-wrap gap-3">
+      <label class="text-sm font-semibold">District<select id="f-district" class="mt-1 block rounded-xl border border-slate-300 bg-white px-3 py-3"><option value="">Tous les districts</option><option>Lukunga</option><option>Funa</option><option>Mont-Amba</option><option>Tshangu</option></select></label>
+      <label class="text-sm font-semibold">Journée<select id="f-day" class="mt-1 block rounded-xl border border-slate-300 bg-white px-3 py-3"><option value="">Toutes les journées</option></select></label>
+    </div>
+    <div id="cal" class="mt-6 grid gap-6"></div>
+  </section>
+
+  <section id="p-classement" class="hidden" aria-labelledby="h-cla">
+    <h2 id="h-cla" class="text-3xl sm:text-4xl">Classements des poules</h2>
+    <label class="mt-4 block text-sm font-semibold">District<select id="f-cdistrict" class="mt-1 block rounded-xl border border-slate-300 bg-white px-3 py-3"><option>Lukunga</option><option>Funa</option><option>Mont-Amba</option><option>Tshangu</option></select></label>
+    <p class="mt-3 flex items-center gap-2 text-sm text-slate-600"><i class="inline-block h-4 w-1.5 rounded bg-ye"></i>Les 2 premiers de chaque poule sont qualifiés pour la phase finale de district.</p>
+    <div id="cla" class="mt-6 grid gap-6 md:grid-cols-2"></div>
+  </section>
+
+  <section id="p-stats" class="hidden" aria-labelledby="h-sta">
+    <h2 id="h-sta" class="text-3xl sm:text-4xl">Buteurs et passeurs</h2>
+    <label class="mt-4 block text-sm font-semibold">District<select id="f-sdistrict" class="mt-1 block rounded-xl border border-slate-300 bg-white px-3 py-3"><option value="">Tous les districts</option><option>Lukunga</option><option>Funa</option><option>Mont-Amba</option><option>Tshangu</option></select></label>
+    <div id="sta" class="mt-6 grid gap-6 md:grid-cols-2"></div>
+  </section>
+
+  <section id="p-annuaire" class="hidden" aria-labelledby="h-ann">
+    <h2 id="h-ann" class="text-3xl sm:text-4xl">Annuaire des écoles</h2>
+    <div class="mt-4 flex flex-wrap items-end gap-3">
+      <label class="text-sm font-semibold">District<select id="f-adistrict" class="mt-1 block rounded-xl border border-slate-300 bg-white px-3 py-3"><option value="">Tous les districts</option><option>Lukunga</option><option>Funa</option><option>Mont-Amba</option><option>Tshangu</option></select></label>
+      <label class="text-sm font-semibold">Rechercher<input id="f-search" type="search" placeholder="Nom de l’école" class="mt-1 block rounded-xl border border-slate-300 bg-white px-3 py-3"></label>
+      <p id="ann-count" class="pb-3 text-sm font-semibold text-slate-600"></p>
+    </div>
+    <ul id="ann" class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"></ul>
+  </section>
+</main>
+
+<dialog id="sheet" class="w-[min(92vw,640px)] rounded-3xl p-0 backdrop:bg-ink/70">
+  <div id="sheet-body" class="p-6"></div>
+  <form method="dialog" class="border-t border-slate-200 p-4 text-right"><button class="min-h-11 rounded-full bg-ink px-6 font-bold text-white">Fermer</button></form>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+(function () {
+  var K = window.KFL || {}, $ = function (id) { return document.getElementById(id); };
+  var TABS = ['calendrier', 'classement', 'stats', 'annuaire'];
+  var D = { schools: {}, list: [], matches: [], standings: {}, stats: [] };
+
+  // Tout texte venant de la base passe par esc() avant d'entrer dans le HTML.
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function note(t) { var n = $('notice'); n.textContent = t || ''; n.classList.toggle('hidden', !t); }
+  function empty(t) { return '<p class="rounded-2xl bg-white p-6 text-slate-600 shadow">' + t + '</p>'; }
+  function color(c) { return /^#[0-9a-fA-F]{6}$/.test(c || '') ? c : null; }
+  function textOn(hex) { var n = parseInt(hex.slice(1), 16), l = (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)); return l > 150 ? '#15112B' : '#fff'; }
+  function school(id) { return D.schools[id] || { name: '—' }; }
+
+  function badge(s, size) {
+    if (s.logo_url && /^https:\/\//.test(s.logo_url)) return '<img src="' + esc(s.logo_url) + '" alt="" loading="lazy" class="' + size + ' shrink-0 rounded-full bg-white object-contain">';
+    var bg = color(s.jersey_colors && s.jersey_colors.principal) || '#15112B';
+    var ini = String(s.name || '?').split(/\s+/).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+    return '<span aria-hidden="true" class="' + size + ' grid shrink-0 place-items-center rounded-full text-xs font-bold" style="background:' + bg + ';color:' + textOn(bg) + '">' + esc(ini) + '</span>';
+  }
+
+  // Lecture de toute une table par pages de 1000 lignes (limite par défaut de Supabase)
+  async function all(table, orders) {
+    var out = [], from = 0, size = 1000;
+    for (;;) {
+      var q = sb.from(table).select('*');
+      orders.forEach(function (o) { q = q.order(o); });
+      var r = await q.range(from, from + size - 1);
+      if (r.error) throw r.error;
+      out = out.concat(r.data);
+      if (r.data.length < size) return out;
+      from += size;
+    }
+  }
+
+  /* ───── Calendrier et résultats ───── */
+  function when(m) {
+    return m.match_date ? new Date(m.match_date).toLocaleString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Kinshasa' }) : 'Date à confirmer';
+  }
+  function renderCal() {
+    var d = $('f-district').value, j = $('f-day').value;
+    var list = D.matches.filter(function (m) { return (!d || m.district === d) && (!j || String(m.matchday) === j); })
+      .sort(function (a, b) { return a.matchday - b.matchday || String(a.match_date || 'z').localeCompare(String(b.match_date || 'z')); });
+    if (!list.length) { $('cal').innerHTML = empty('Le calendrier sera publié prochainement.'); return; }
+    var byDay = {};
+    list.forEach(function (m) { (byDay[m.matchday] = byDay[m.matchday] || []).push(m); });
+    $('cal').innerHTML = Object.keys(byDay).map(function (day) {
+      return '<div><h3 class="d text-2xl">Journée ' + esc(day) + '</h3><ul class="mt-3 grid gap-2">' + byDay[day].map(function (m) {
+        var a = school(m.team_a_id), b = school(m.team_b_id), done = m.status === 'termine' || m.status === 'en_cours';
+        var mid = done && m.score_a != null ? '<span class="d text-2xl">' + esc(m.score_a) + ' – ' + esc(m.score_b) + '</span>' : '<span class="text-sm font-bold text-slate-500">vs</span>';
+        var chip = m.status === 'en_cours' ? '<span class="rounded-full bg-pk px-2 py-0.5 text-xs font-bold">En direct</span>'
+          : m.status === 'reporte' ? '<span class="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-bold">Reporté</span>'
+          : m.status === 'termine' ? '<span class="rounded-full bg-emerald-200 px-2 py-0.5 text-xs font-bold">Terminé</span>' : '';
+        return '<li><button data-match="' + esc(m.id) + '" class="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-2xl bg-white p-3 text-left shadow focus-visible:outline-ye">' +
+          '<span class="flex items-center gap-2 font-bold">' + badge(a, 'h-9 w-9') + '<span>' + esc(a.name) + '</span></span>' + mid +
+          '<span class="flex items-center justify-end gap-2 text-right font-bold"><span>' + esc(b.name) + '</span>' + badge(b, 'h-9 w-9') + '</span>' +
+          '<span class="col-span-3 flex flex-wrap items-center gap-2 text-xs text-slate-600">' + esc(m.district) + ' · Poule ' + esc(m.group_stage) + ' · ' + esc(when(m)) + ' ' + chip + '</span></button></li>';
+      }).join('') + '</ul></div>';
+    }).join('');
+  }
+
+  /* ───── Feuille de match ───── */
+  function openSheet(id) {
+    var m = D.matches.filter(function (x) { return x.id === id; })[0]; if (!m) return;
+    var rows = D.stats.filter(function (r) { return r.match_id === id; });
+    var a = school(m.team_a_id), b = school(m.team_b_id);
+    function col(s, sid) {
+      var mine = rows.filter(function (r) { return r.school_id === sid; });
+      function list(key, label, suffix) {
+        var l = mine.filter(function (r) { return r[key] > 0; }).map(function (r) { return esc(r.full_name) + (r[key] > 1 ? ' (' + r[key] + ')' : ''); });
+        return l.length ? '<p class="mt-2"><b>' + label + '</b> ' + l.join(', ') + '</p>' : '';
+      }
+      return '<div><p class="flex items-center gap-2 font-bold">' + badge(s, 'h-8 w-8') + esc(s.name) + '</p><div class="text-sm">' +
+        list('goals', 'Buteurs :') + list('assists', 'Passeurs :') + list('yellow_cards', 'Cartons jaunes :') + list('red_cards', 'Cartons rouges :') + '</div></div>';
+    }
+    var score = (m.status === 'termine' || m.status === 'en_cours') && m.score_a != null ? esc(m.score_a) + ' – ' + esc(m.score_b) : 'vs';
+    $('sheet-body').innerHTML = '<p class="text-sm text-slate-600">' + esc(m.district) + ' · Poule ' + esc(m.group_stage) + ' · Journée ' + esc(m.matchday) + ' · ' + esc(when(m)) + '</p>' +
+      '<p class="d mt-2 text-center text-5xl">' + score + '</p>' +
+      '<div class="mt-4 grid gap-4 sm:grid-cols-2">' + col(a, m.team_a_id) + col(b, m.team_b_id) + '</div>' +
+      (rows.length ? '' : '<p class="mt-4 rounded-xl bg-slate-100 p-3 text-sm">La feuille de match sera publiée après la rencontre.</p>');
+    $('sheet').showModal();
+  }
+
+  /* ───── Classements ───── */
+  function renderCla() {
+    var d = $('f-cdistrict').value, groups = {};
+    D.matches.filter(function (m) { return m.district === d; }).forEach(function (m) {
+      var g = groups[m.group_stage] = groups[m.group_stage] || {};
+      [m.team_a_id, m.team_b_id].forEach(function (t) { g[t] = true; });
+    });
+    var keys = Object.keys(groups).sort();
+    if (!keys.length) { $('cla').innerHTML = '<div class="md:col-span-2">' + empty('Les poules seront publiées prochainement.') + '</div>'; return; }
+    $('cla').innerHTML = keys.map(function (g) {
+      var rows = Object.keys(groups[g]).map(function (id) {
+        var r = D.standings[id] || {};
+        return { id: id, p: +r.played || 0, w: +r.won || 0, n: +r.drawn || 0, l: +r.lost || 0, gf: +r.gf || 0, ga: +r.ga || 0, gd: +r.gd || 0, pts: +r.points || 0 };
+      }).sort(function (x, y) { return y.pts - x.pts || y.gd - x.gd || y.gf - x.gf || school(x.id).name.localeCompare(school(y.id).name); });
+      return '<div class="scroll-x rounded-2xl bg-white p-4 shadow"><h3 class="d text-2xl">Poule ' + esc(g) + '</h3>' +
+        '<table class="mt-3 w-full min-w-[420px] text-sm"><thead class="text-left text-slate-500"><tr><th class="py-1">#</th><th>École</th><th class="text-right">J</th><th class="text-right">G</th><th class="text-right">N</th><th class="text-right">P</th><th class="text-right">Diff.</th><th class="text-right">Pts</th></tr></thead><tbody>' +
+        rows.map(function (r, i) {
+          return '<tr class="border-t border-slate-100' + (i < 2 ? ' border-l-4 border-l-ye' : '') + '"><td class="py-2 pl-2 font-bold">' + (i + 1) + '</td><td class="font-semibold">' + esc(school(r.id).name) + '</td>' +
+            '<td class="text-right">' + r.p + '</td><td class="text-right">' + r.w + '</td><td class="text-right">' + r.n + '</td><td class="text-right">' + r.l + '</td>' +
+            '<td class="text-right">' + (r.gd > 0 ? '+' : '') + r.gd + '</td><td class="text-right font-bold">' + r.pts + '</td></tr>';
+        }).join('') + '</tbody></table></div>';
+    }).join('');
+  }
+
+  /* ───── Buteurs et passeurs ───── */
+  function renderStats() {
+    var d = $('f-sdistrict').value, agg = {};
+    D.stats.forEach(function (r) {
+      if (d && school(r.school_id).district !== d) return;
+      var k = r.school_id + '|' + r.full_name + '|' + r.jersey_number;
+      var a = agg[k] = agg[k] || { name: r.full_name, sid: r.school_id, g: 0, a: 0 };
+      a.g += r.goals; a.a += r.assists;
+    });
+    var rows = Object.keys(agg).map(function (k) { return agg[k]; });
+    function table(title, key) {
+      var top = rows.filter(function (r) { return r[key] > 0; }).sort(function (x, y) { return y[key] - x[key] || x.name.localeCompare(y.name); }).slice(0, 10);
+      return '<div class="rounded-2xl bg-white p-4 shadow"><h3 class="d text-2xl">' + title + '</h3>' + (top.length ? '<ol class="mt-3 grid gap-2">' + top.map(function (r, i) {
+        return '<li class="flex items-center gap-3"><span class="d w-6 text-xl text-slate-400">' + (i + 1) + '</span>' + badge(school(r.sid), 'h-8 w-8') +
+          '<span class="mr-auto"><b>' + esc(r.name) + '</b><br><span class="text-xs text-slate-600">' + esc(school(r.sid).name) + '</span></span><span class="d text-2xl">' + r[key] + '</span></li>';
+      }).join('') + '</ol>' : '<p class="mt-3 text-slate-600">Les statistiques apparaîtront après les premiers matchs.</p>') + '</div>';
+    }
+    $('sta').innerHTML = table('Meilleurs buteurs', 'g') + table('Meilleurs passeurs', 'a');
+  }
+
+  /* ───── Annuaire ───── */
+  function renderAnn() {
+    var d = $('f-adistrict').value, q = $('f-search').value.trim().toLowerCase();
+    var list = D.list.filter(function (s) { return (!d || s.district === d) && (!q || s.name.toLowerCase().indexOf(q) > -1); });
+    $('ann-count').textContent = list.length + ' école' + (list.length > 1 ? 's' : '');
+    $('ann').innerHTML = list.length ? list.map(function (s) {
+      var c = s.jersey_colors || {}, sw = [c.principal, c.secondaire].map(color).filter(Boolean).map(function (h) { return '<i class="inline-block h-4 w-4 rounded-full border border-slate-300" style="background:' + h + '" title="Couleur de maillot"></i>'; }).join('');
+      return '<li class="flex items-center gap-3 rounded-2xl bg-white p-4 shadow">' + badge(s, 'h-14 w-14') +
+        '<div class="mr-auto"><p class="font-bold">' + esc(s.name) + '</p><p class="text-sm text-slate-600">District ' + esc(s.district) + '</p><p class="mt-1 flex items-center gap-1">' + sw + '</p></div>' +
+        '<p class="text-center" title="Score fair-play"><span class="d block text-2xl">' + esc(s.fair_play_score) + '</span><span class="text-[11px] text-slate-500">fair-play</span></p></li>';
+    }).join('') : '<li class="sm:col-span-2 lg:col-span-3">' + empty('Aucune école ne correspond à votre recherche.') + '</li>';
+  }
+
+  /* ───── Navigation par rubrique ───── */
+  function route() {
+    var t = location.hash.slice(1); if (TABS.indexOf(t) < 0) t = 'calendrier';
+    TABS.forEach(function (x) { $('p-' + x).classList.toggle('hidden', x !== t); });
+    document.querySelectorAll('[data-tab]').forEach(function (a) {
+      var on = a.getAttribute('data-tab') === t;
+      a.className = 'shrink-0 rounded-full border px-4 py-2 ' + (on ? 'border-ye bg-ye text-ink' : 'border-white/30');
+      if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+  }
+  window.addEventListener('hashchange', route); route();
+  ['f-district', 'f-day'].forEach(function (id) { $(id).addEventListener('change', renderCal); });
+  $('f-cdistrict').addEventListener('change', renderCla);
+  $('f-sdistrict').addEventListener('change', renderStats);
+  $('f-adistrict').addEventListener('change', renderAnn);
+  $('f-search').addEventListener('input', renderAnn);
+  $('cal').addEventListener('click', function (e) { var b = e.target.closest('[data-match]'); if (b) openSheet(b.getAttribute('data-match')); });
+  $('sheet').addEventListener('click', function (e) { if (e.target === $('sheet')) $('sheet').close(); });
+
+  /* ───── Chargement et mise à jour en direct ───── */
+  if (!(window.supabase && K.url && !/VOTRE/.test(K.url))) { note('Les résultats ne sont pas encore disponibles : le site n’est pas relié à sa base de données.'); return; }
+  var sb = supabase.createClient(K.url, K.anonKey, { auth: { persistSession: false } });
+
+  async function load(first) {
+    try {
+      var res = await Promise.all([
+        first ? all('schools_public', ['name']) : Promise.resolve(null),
+        all('matches', ['id']), all('standings', ['district', 'group_stage', 'school_id']), all('match_stats_public', ['match_id', 'full_name'])
+      ]);
+      if (res[0]) { D.list = res[0]; D.schools = {}; res[0].forEach(function (s) { D.schools[s.id] = s; }); }
+      D.matches = res[1]; D.standings = {}; res[2].forEach(function (r) { D.standings[r.school_id] = r; }); D.stats = res[3];
+      var days = {}; D.matches.forEach(function (m) { days[m.matchday] = true; });
+      var cur = $('f-day').value;
+      $('f-day').innerHTML = '<option value="">Toutes les journées</option>' + Object.keys(days).sort(function (a, b) { return a - b; }).map(function (d) { return '<option value="' + esc(d) + '">Journée ' + esc(d) + '</option>'; }).join('');
+      $('f-day').value = cur; note('');
+      renderCal(); renderCla(); renderStats(); renderAnn();
+    } catch (e) { note('Chargement impossible pour le moment. Réessayez dans un instant.'); }
+  }
+  load(true);
+
+  var timer;
+  sb.channel('matches-live').on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, function () {
+    clearTimeout(timer); timer = setTimeout(function () { load(false); }, 600);   // scores et classements en direct
+  }).subscribe();
+})();
+</script>
+</body>
+</html>

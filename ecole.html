@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Espace école | Kelasi Football League</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#15112B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{cy:'#1AB0CB',pu:'#7A2A8E',ye:'#F9B81C',pk:'#F2557E',ink:'#15112B'},fontFamily:{d:['Anton','Impact','Arial Narrow','sans-serif'],b:['Barlow','system-ui','sans-serif']}}}}</script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{font-family:Barlow,system-ui,sans-serif;background:#f7f3ea;color:#17152c;line-height:1.6}
+h1,h2,.d{font-family:Anton,Impact,'Arial Narrow',sans-serif;font-weight:400;line-height:.95;letter-spacing:.02em;text-transform:uppercase}
+:focus-visible{outline:3px solid #F9B81C;outline-offset:3px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- ───────── Connexion par code ───────── -->
+<main id="view-login" class="grid min-h-svh place-items-center bg-ink px-4 py-16">
+  <form id="login-form" class="w-full max-w-md rounded-[2rem] bg-white p-8 shadow-2xl" novalidate>
+    <h1 class="text-4xl text-ink">Espace école</h1>
+    <p class="mt-3 text-slate-600">Saisissez le code à 10 caractères remis à votre établissement.</p>
+    <label for="code" class="mt-6 block text-sm font-semibold text-slate-700">Code de l’école</label>
+    <input id="code" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="10" placeholder="••••••••••"
+      class="mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-4 text-center font-mono text-2xl tracking-[.25em] text-ink focus:border-ink focus:outline-none">
+    <p id="code-count" class="mt-1 text-right text-xs text-slate-500">0/10</p>
+    <p id="login-err" role="alert" class="hidden mt-3 rounded-lg bg-pk/15 px-3 py-2 text-sm font-semibold"></p>
+    <button id="login-btn" disabled class="mt-6 min-h-12 w-full rounded-full bg-ye font-bold text-ink disabled:opacity-40">Accéder à mon tableau de bord</button>
+    <a href="index.html" class="mt-4 block text-center text-sm font-semibold text-slate-600 underline">Retour au site</a>
+  </form>
+</main>
+
+<!-- ───────── Feuille de suivi ───────── -->
+<main id="view-dash" class="hidden pb-16">
+  <header class="bg-ink text-white">
+    <div class="mx-auto flex max-w-5xl flex-wrap items-center gap-4 px-4 py-6">
+      <div class="mr-auto">
+        <p id="d-district" class="text-sm text-white/70"></p>
+        <h1 id="d-name" class="text-4xl sm:text-5xl"></h1>
+      </div>
+      <span id="d-status" role="status" class="rounded-full px-4 py-2 text-sm font-bold"></span>
+      <button id="logout" class="min-h-11 rounded-full border border-white/40 px-4 text-sm font-semibold">Se déconnecter</button>
+    </div>
+    <div class="flex h-2" aria-hidden="true"><i class="flex-1 bg-cy"></i><i class="flex-1 bg-pu"></i><i class="flex-1 bg-ye"></i><i class="flex-1 bg-pk"></i></div>
+  </header>
+
+  <div class="mx-auto mt-8 grid max-w-5xl gap-8 px-4">
+    <p id="d-msg" role="alert" class="hidden rounded-xl bg-pk/20 px-4 py-3 font-semibold"></p>
+
+    <section aria-labelledby="h-progress" class="rounded-2xl bg-white p-6 shadow">
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 id="h-progress" class="text-3xl">Compléter le dossier</h2>
+          <p class="mt-2 max-w-2xl text-slate-600">Ajoutez les joueurs, puis transmettez les trois pièces justificatives demandées pour chacun.</p>
+        </div>
+        <span id="progress-status" role="status" class="rounded-full bg-ye px-4 py-2 text-sm font-bold">Chargement…</span>
+      </div>
+      <div class="mt-5 h-3 overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-label="Pièces justificatives transmises" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div id="progress-fill" class="h-full rounded-full bg-cy transition-[width] duration-300" style="width:0%"></div>
+      </div>
+      <div class="mt-3 flex flex-wrap justify-between gap-2 text-sm font-semibold">
+        <p id="progress-docs">0 pièce transmise</p>
+        <p id="progress-players">0 joueur avec un dossier complet</p>
+      </div>
+      <p class="mt-4 text-sm text-slate-600">« Fourni » signifie transmis à la KFL, pas encore validé. Les documents restent à vérifier par l’organisation.</p>
+    </section>
+
+    <section aria-labelledby="h-league" class="rounded-2xl bg-ink p-6 text-white shadow-xl">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h2 id="h-league" class="text-3xl">Vie du championnat</h2>
+          <p id="league-context" class="mt-2 text-sm text-white/70">Calendrier, classement et résultats de votre district.</p>
+        </div>
+        <nav aria-label="Compétition" class="flex flex-wrap gap-2 text-sm font-bold">
+          <a href="competition.html#calendrier" class="min-h-11 rounded-full bg-white/10 px-4 py-2 hover:bg-white/20">Tous les matchs</a>
+          <a href="competition.html#stats" class="min-h-11 rounded-full bg-ye px-4 py-2 text-ink">Buteurs et passeurs</a>
+        </nav>
+      </div>
+      <p id="league-msg" role="status" aria-live="polite" class="mt-4 hidden rounded-xl bg-white/10 px-4 py-3 text-sm text-white/85"></p>
+
+      <div class="mt-5 grid gap-3 sm:grid-cols-3">
+        <article class="rounded-2xl bg-white/10 p-4">
+          <p class="text-sm text-white/70">Place dans la poule</p>
+          <p id="league-position" class="d mt-1 text-3xl">—</p>
+        </article>
+        <article class="rounded-2xl bg-white/10 p-4">
+          <p class="text-sm text-white/70">Points</p>
+          <p id="league-points" class="d mt-1 text-3xl">—</p>
+        </article>
+        <article class="rounded-2xl bg-white/10 p-4">
+          <p class="text-sm text-white/70">Matchs joués</p>
+          <p id="league-played" class="d mt-1 text-3xl">—</p>
+        </article>
+      </div>
+
+      <div class="mt-5 grid gap-5 lg:grid-cols-2">
+        <article>
+          <h3 class="d text-2xl">Prochain match de votre école</h3>
+          <ul id="league-next" class="mt-3 grid gap-2"></ul>
+        </article>
+        <article>
+          <h3 class="d text-2xl">Derniers résultats de la poule</h3>
+          <ul id="league-results" class="mt-3 grid gap-2"></ul>
+        </article>
+      </div>
+
+      <article class="mt-6">
+        <div class="flex flex-wrap items-end justify-between gap-2">
+          <h3 class="d text-2xl">Classement de la poule</h3>
+          <a href="competition.html#classement" class="text-sm font-bold text-ye underline">Voir tous les classements</a>
+        </div>
+        <div id="league-table" class="mt-3 overflow-x-auto rounded-2xl bg-white p-3 text-ink"></div>
+      </article>
+    </section>
+
+    <section aria-labelledby="h-roster">
+      <div class="flex items-end justify-between">
+        <h2 id="h-roster" class="text-3xl">Roster officiel</h2>
+        <p id="d-count" class="font-semibold"></p>
+      </div>
+      <ul id="roster" class="mt-4 grid gap-3"></ul>
+
+      <form id="add-form" class="mt-4 grid gap-3 rounded-2xl bg-white p-4 shadow sm:grid-cols-[2fr_1.2fr_.8fr_1.2fr_auto] sm:items-end">
+        <label class="text-sm font-semibold">Nom et prénom<input name="name" required minlength="3" class="mt-1 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-3"></label>
+        <label class="text-sm font-semibold">Date de naissance<input name="birth" type="date" required class="mt-1 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-3"></label>
+        <label class="text-sm font-semibold">N° maillot<input name="number" type="number" min="1" max="99" required class="mt-1 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-3"></label>
+        <label class="text-sm font-semibold">Poste
+          <select name="position" required class="mt-1 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-3">
+            <option value="">Choisir</option><option>Gardien</option><option>Défenseur</option><option>Milieu</option><option>Attaquant</option>
+          </select>
+        </label>
+        <button class="min-h-12 rounded-full bg-ye px-6 font-bold">Ajouter</button>
+      </form>
+      <p class="mt-3 text-sm text-slate-600">Maximum 23 joueurs. Pour chacun : capture lisible de la carte d’élève, certificat de scolarité et certificat d’aptitude physique. Vous pouvez prendre la carte en photo avec votre téléphone ou joindre un scan. Formats acceptés : PDF, JPG ou PNG (5 Mo maximum par fichier).</p>
+    </section>
+
+    <section aria-labelledby="h-disc" class="rounded-2xl bg-white p-6 shadow">
+      <h2 id="h-disc" class="text-3xl">Discipline et Double Projet</h2>
+      <dl id="disc" class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4"></dl>
+      <p id="sanctions" class="mt-4 text-slate-700"></p>
+    </section>
+
+    <section aria-labelledby="h-dl" class="rounded-2xl bg-white p-6 shadow">
+      <h2 id="h-dl" class="text-3xl">Documents officiels</h2>
+      <ul class="mt-4 flex flex-wrap gap-3">
+        <!-- Déposez ces PDF dans /telechargements/ (documents fournis par l'organisation) -->
+        <li><a download href="telechargements/reglement-officiel.pdf" class="inline-flex min-h-12 items-center rounded-full bg-ink px-5 font-semibold text-white">Règlement officiel</a></li>
+        <li><a download href="telechargements/carte-ethique.pdf" class="inline-flex min-h-12 items-center rounded-full bg-ink px-5 font-semibold text-white">Carte éthique</a></li>
+        <li><a download href="telechargements/feuille-de-match-vierge.pdf" class="inline-flex min-h-12 items-center rounded-full bg-ink px-5 font-semibold text-white">Feuille de match vierge</a></li>
+      </ul>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+(function () {
+  var sb = supabase.createClient(KFL.url, KFL.anonKey, { auth: { persistSession: false } });
+  var $ = function (id) { return document.getElementById(id); };
+  var MAX = 23, MAX_BYTES = 5 * 1024 * 1024;
+  var EXT = { 'application/pdf': 'pdf', 'image/jpeg': 'jpg', 'image/png': 'png' };
+  var DOCS = [['identite', 'Carte d’élève'], ['scolarite', 'Certificat de scolarité'], ['medical', 'Certificat d’aptitude physique']];
+  var STATUS = {
+    incomplet: ['Incomplet', 'bg-pk text-ink'],
+    en_attente: ['En attente de validation', 'bg-ye text-ink'],
+    valide: ['Validé', 'bg-emerald-400 text-ink']
+  };
+  var ERR = {
+    code_inconnu: 'Code inconnu. Vérifiez-le ou contactez les organisateurs.',
+    trop_de_tentatives: 'Trop de tentatives. Réessayez dans 15 minutes.',
+    session_expiree: 'Votre session a expiré. Reconnectez-vous.',
+    nom_invalide: 'Indiquez le nom et le prénom du joueur.',
+    age_depasse: 'Ce joueur dépasse la limite d’âge U18.',
+    maillot_pris: 'Ce numéro de maillot est déjà attribué.',
+    roster_complet: 'Roster complet : 23 joueurs maximum.',
+    donnees_invalides: 'Données invalides. Vérifiez les champs.',
+    fichier_invalide: 'Fichier refusé. Réessayez.'
+  };
+  var token = sessionStorage.getItem('kfl_token'), schoolId = sessionStorage.getItem('kfl_sid');
+  var league = { matches: [], standings: {}, schools: {} }, currentSchool = null, matchRefreshTimer;
+
+  // Tout texte venant de la base passe par esc() avant d'entrer dans le HTML.
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function msg(text) { var m = $('d-msg'); m.textContent = text || ''; m.classList.toggle('hidden', !text); if (text) m.scrollIntoView({ block: 'nearest' }); }
+  function view(name) { $('view-login').classList.toggle('hidden', name !== 'login'); $('view-dash').classList.toggle('hidden', name !== 'dash'); }
+  function leave(text) {
+    token = schoolId = null; sessionStorage.clear(); view('login');
+    var e = $('login-err'); e.textContent = text || ''; e.classList.toggle('hidden', !text);
+  }
+
+  /* 2. Connexion par code */
+  $('code').addEventListener('input', function (e) {
+    var v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+    e.target.value = v; $('code-count').textContent = v.length + '/10'; $('login-btn').disabled = v.length !== 10;
+  });
+  $('login-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var btn = $('login-btn'), err = $('login-err'); btn.disabled = true; btn.textContent = 'Vérification…'; err.classList.add('hidden');
+    var r = await sb.rpc('school_login', { p_code: $('code').value });
+    btn.textContent = 'Accéder à mon tableau de bord'; btn.disabled = false;
+    if (r.error || !r.data) { err.textContent = 'Connexion impossible. Vérifiez votre réseau et réessayez.'; err.classList.remove('hidden'); return; }
+    if (r.data.error) { err.textContent = ERR[r.data.error] || 'Connexion impossible.'; err.classList.remove('hidden'); return; }
+    token = r.data.token; schoolId = r.data.school_id;
+    sessionStorage.setItem('kfl_token', token); sessionStorage.setItem('kfl_sid', schoolId);
+    $('code').value = ''; load();
+  });
+  $('logout').addEventListener('click', async function () {
+    if (token) await sb.rpc('school_logout', { p_token: token });
+    leave('');
+  });
+
+  /* 3. Feuille de suivi */
+  async function load() {
+    try {
+      var r = await sb.rpc('school_dashboard', { p_token: token });
+      if (r.error || !r.data) { console.error('Échec du chargement du dossier école :', r.error); msg('Chargement impossible. Vérifiez votre connexion puis réessayez.'); return false; }
+      if (r.data.error) { leave(ERR[r.data.error] || 'Votre session a expiré. Reconnectez-vous.'); return false; }
+      currentSchool = r.data.school;
+      render(r.data); view('dash');
+      await loadLeague(currentSchool);
+      return true;
+    } catch (error) {
+      console.error('Erreur réseau au chargement du dossier école :', error);
+      msg('Chargement impossible. Vérifiez votre connexion puis réessayez.');
+      return false;
+    }
+  }
+
+  function render(d) {
+    var s = d.school, st = STATUS[s.status];
+    if (!st) { msg('Statut d’inscription inconnu. Contactez l’équipe KFL.'); return; }
+    $('d-name').textContent = s.name;
+    $('d-district').textContent = 'District ' + s.district;
+    var b = $('d-status'); b.textContent = 'Inscription : ' + st[0]; b.className = 'rounded-full px-4 py-2 text-sm font-bold ' + st[1];
+    $('d-count').textContent = d.players.length + ' / ' + MAX + ' joueurs';
+    $('add-form').classList.toggle('hidden', d.players.length >= MAX);
+    var requiredDocs = d.players.length * DOCS.length, providedDocs = 0, completePlayers = 0;
+    d.players.forEach(function (p) {
+      var complete = DOCS.every(function (k) {
+        var state = p.docs && p.docs[k[0]];
+        if (state === 'fourni' || state === 'valide') providedDocs++;
+        return state === 'fourni' || state === 'valide';
+      });
+      if (complete) completePlayers++;
+    });
+    var percent = requiredDocs ? Math.round(providedDocs * 100 / requiredDocs) : 0;
+    $('progress-docs').textContent = providedDocs + ' / ' + requiredDocs + ' pièces transmises';
+    $('progress-players').textContent = completePlayers + ' / ' + d.players.length + ' joueurs avec un dossier complet';
+    var progress = $('progress-fill').parentNode;
+    progress.setAttribute('aria-valuenow', percent);
+    $('progress-fill').style.width = percent + '%';
+    $('progress-status').textContent = s.status === 'valide' ? 'Inscription validée' :
+      s.status === 'en_attente' ? 'Dossier transmis · en attente de validation' :
+      !d.players.length ? 'Commencez par ajouter les joueurs' :
+      completePlayers === d.players.length ? 'Pièces transmises · vérification requise' : 'Pièces à compléter';
+
+    $('roster').innerHTML = d.players.length ? d.players.map(function (p) {
+      var slots = DOCS.map(function (k) {
+        var state = p.docs[k[0]] || 'manquant';
+        var cls = state === 'valide' ? 'border-emerald-500 bg-emerald-100' : state === 'fourni' ? 'border-ye bg-ye/20' : 'border-dashed border-slate-300 text-slate-500';
+        var txt = state === 'valide' ? 'Validé' : state === 'fourni' ? 'Fourni · remplacer' : 'À fournir';
+        return '<label class="flex cursor-pointer items-center justify-between gap-2 rounded-xl border-2 px-3 py-2 text-sm font-semibold focus-within:ring-2 focus-within:ring-ye ' + cls + '">' +
+          '<span>' + k[1] + '</span><span class="shrink-0 text-xs" data-state>' + txt + '</span>' +
+          '<input type="file" class="sr-only" accept="application/pdf,image/jpeg,image/png" ' + (k[0] === 'identite' ? 'capture="environment" ' : '') + 'data-player="' + esc(p.id) + '" data-kind="' + k[0] + '"></label>';
+      }).join('');
+      return '<li class="rounded-2xl bg-white p-4 shadow"><div class="flex items-center gap-3">' +
+        '<span class="d grid size-11 shrink-0 place-items-center rounded-full bg-ink text-xl text-white">' + esc(p.jersey_number) + '</span>' +
+        '<div class="mr-auto"><p class="font-bold">' + esc(p.full_name) + '</p><p class="text-sm text-slate-600">' + esc(p.position) + ' · né(e) le ' + new Date(p.birth_date + 'T00:00:00').toLocaleDateString('fr-FR') + '</p></div>' +
+        '<button data-remove="' + esc(p.id) + '" class="min-h-11 rounded-full px-3 text-sm font-semibold text-slate-600 underline">Retirer</button></div>' +
+        '<div class="mt-3 grid gap-2 sm:grid-cols-3">' + slots + '</div></li>';
+    }).join('') : '<li class="rounded-2xl bg-white p-6 text-slate-600">Aucun joueur pour l’instant. Ajoutez votre premier joueur ci-dessous.</li>';
+
+    var c = d.discipline || { yellow_cards: 0, red_cards: 0 };
+    function stat(label, v, cls) { return '<div class="rounded-xl p-4 ' + cls + '"><dd class="d text-3xl">' + esc(v) + '</dd><dt class="mt-1 text-sm font-semibold">' + label + '</dt></div>'; }
+    $('disc').innerHTML = stat('Cartons jaunes', c.yellow_cards, 'bg-ye') + stat('Cartons rouges', c.red_cards, 'bg-pk') +
+      stat('Score fair-play', s.fair_play_score, 'bg-cy') + stat('Double Projet', s.double_project_ok ? 'Respecté' : 'À régulariser', s.double_project_ok ? 'bg-emerald-300' : 'bg-pk');
+    $('sanctions').textContent = s.sanctions_note || 'Aucune sanction enregistrée.';
+  }
+
+  function matchDate(m) {
+    return m.match_date ? new Date(m.match_date).toLocaleString('fr-FR', {
+      weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Kinshasa'
+    }) : 'Date à confirmer';
+  }
+
+  function matchCard(m) {
+    var a = league.schools[m.team_a_id] || 'École à confirmer';
+    var b = league.schools[m.team_b_id] || 'École à confirmer';
+    var scored = (m.status === 'termine' || m.status === 'en_cours') && m.score_a != null && m.score_b != null;
+    var score = scored ? esc(m.score_a) + ' – ' + esc(m.score_b) : 'vs';
+    var state = m.status === 'en_cours' ? 'En direct' : m.status === 'termine' ? 'Terminé' : m.status === 'reporte' ? 'Reporté' : 'Programmé';
+    return '<li class="rounded-xl bg-white/10 p-3">' +
+      '<div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm font-bold"><span>' + esc(a) + '</span><span class="d text-xl">' + score + '</span><span class="text-right">' + esc(b) + '</span></div>' +
+      '<p class="mt-2 text-xs text-white/65">' + esc(state) + ' · Journée ' + esc(m.matchday) + ' · ' + esc(matchDate(m)) + '</p></li>';
+  }
+
+  async function loadLeague(school) {
+    var message = $('league-msg');
+    try {
+      var results = await Promise.all([
+        sb.from('matches').select('id,district,group_stage,matchday,team_a_id,team_b_id,score_a,score_b,match_date,status').eq('district', school.district).order('matchday', { ascending: true }).limit(1000),
+        sb.from('standings').select('school_id,group_stage,played,won,drawn,lost,gf,ga,gd,points').eq('district', school.district),
+        sb.from('schools_public').select('id,name').eq('district', school.district)
+      ]);
+      var failed = results.filter(function (r) { return r.error; })[0];
+      if (failed) throw failed.error;
+      league.matches = results[0].data || [];
+      league.standings = {};
+      (results[1].data || []).forEach(function (r) { league.standings[r.school_id] = r; });
+      league.schools = {};
+      (results[2].data || []).forEach(function (s) { league.schools[s.id] = s.name; });
+      renderLeague(school);
+      message.textContent = '';
+      message.classList.add('hidden');
+    } catch (error) {
+      console.error('Échec du chargement des résultats du championnat :', error);
+      message.textContent = 'Les résultats du championnat sont momentanément indisponibles. Réessayez plus tard ou consultez la page Compétition.';
+      message.classList.remove('hidden');
+    }
+  }
+
+  function renderLeague(school) {
+    var districtMatches = league.matches;
+    var schoolMatches = districtMatches.filter(function (m) { return m.team_a_id === schoolId || m.team_b_id === schoolId; });
+    var group = schoolMatches.length ? schoolMatches[0].group_stage : null;
+    $('league-context').textContent = 'District ' + school.district + (group ? ' · Poule ' + group : '');
+
+    var groupMatches = group ? districtMatches.filter(function (m) { return m.group_stage === group; }) : [];
+    var teams = {};
+    groupMatches.forEach(function (m) { teams[m.team_a_id] = true; teams[m.team_b_id] = true; });
+    var rows = Object.keys(teams).map(function (id) {
+      var r = league.standings[id] || {};
+      return { id: id, name: league.schools[id] || 'École à confirmer', played: +r.played || 0, won: +r.won || 0, drawn: +r.drawn || 0, lost: +r.lost || 0, gd: +r.gd || 0, points: +r.points || 0, gf: +r.gf || 0 };
+    }).sort(function (a, b) { return b.points - a.points || b.gd - a.gd || b.gf - a.gf || a.name.localeCompare(b.name); });
+    var position = rows.findIndex(function (r) { return r.id === schoolId; });
+    var myRow = position >= 0 ? rows[position] : null;
+    var ordinal = position === 0 ? '1re' : (position + 1) + 'e';
+    $('league-position').textContent = myRow ? ordinal + ' / ' + rows.length : '—';
+    $('league-points').textContent = myRow ? String(myRow.points) : '—';
+    $('league-played').textContent = myRow ? String(myRow.played) : '—';
+
+    var upcoming = schoolMatches.filter(function (m) { return m.status === 'programme'; })
+      .sort(function (a, b) { return a.matchday - b.matchday || String(a.match_date || '').localeCompare(String(b.match_date || '')); })[0];
+    var live = schoolMatches.filter(function (m) { return m.status === 'en_cours'; })[0];
+    $('league-next').innerHTML = live ? matchCard(live) : upcoming ? matchCard(upcoming) :
+      '<li class="rounded-xl bg-white/10 p-4 text-sm text-white/70">Aucun prochain match n’est publié pour votre école.</li>';
+
+    var recent = groupMatches.filter(function (m) { return m.status === 'termine' || m.status === 'en_cours' || m.status === 'reporte'; })
+      .sort(function (a, b) { return b.matchday - a.matchday || String(b.match_date || '').localeCompare(String(a.match_date || '')); }).slice(0, 5);
+    $('league-results').innerHTML = recent.length ? recent.map(matchCard).join('') :
+      '<li class="rounded-xl bg-white/10 p-4 text-sm text-white/70">Aucun résultat publié dans cette poule pour le moment.</li>';
+
+    if (!group || !rows.length) {
+      $('league-table').innerHTML = '<p class="p-3 text-sm text-slate-600">Le classement de votre poule apparaîtra lorsque le calendrier de l’école sera publié.</p>';
+      return;
+    }
+    $('league-table').innerHTML = '<table class="w-full min-w-[460px] text-sm"><thead class="text-left text-slate-500"><tr><th class="py-2">#</th><th>École</th><th class="text-right">J</th><th class="text-right">G</th><th class="text-right">N</th><th class="text-right">P</th><th class="text-right">Diff.</th><th class="text-right">Pts</th></tr></thead><tbody>' +
+      rows.map(function (r, i) {
+        var mine = r.id === schoolId;
+        return '<tr class="border-t border-slate-100' + (mine ? ' bg-ye/20 font-bold' : '') + (i < 2 ? ' border-l-4 border-l-ye' : '') + (mine ? '" aria-current="true' : '') + '">' +
+          '<td class="py-2 pl-2">' + (i + 1) + '</td><td>' + esc(r.name) + (mine ? ' <span class="text-xs text-slate-500">(votre école)</span>' : '') + '</td>' +
+          '<td class="text-right">' + r.played + '</td><td class="text-right">' + r.won + '</td><td class="text-right">' + r.drawn + '</td><td class="text-right">' + r.lost + '</td>' +
+          '<td class="text-right">' + (r.gd > 0 ? '+' : '') + r.gd + '</td><td class="text-right font-bold">' + r.points + '</td></tr>';
+      }).join('') + '</tbody></table><p class="mt-2 text-xs text-slate-500">Les deux premières places sont qualificatives pour la phase finale de district.</p>';
+  }
+
+  $('add-form').addEventListener('submit', async function (e) {
+    e.preventDefault(); msg('');
+    var f = e.target, v = new FormData(f);
+    var r = await sb.rpc('school_add_player', { p_token: token, p_name: v.get('name'), p_birth: v.get('birth'), p_number: Number(v.get('number')), p_position: v.get('position') });
+    if (r.error || !r.data) return msg('Ajout impossible. Réessayez.');
+    if (r.data.error) { if (r.data.error === 'session_expiree') return leave(ERR.session_expiree); return msg(ERR[r.data.error] || 'Ajout impossible.'); }
+    f.reset(); load();
+  });
+
+  $('roster').addEventListener('click', async function (e) {
+    var id = e.target.getAttribute && e.target.getAttribute('data-remove');
+    if (!id || !confirm('Retirer ce joueur du roster ?')) return;
+    var r = await sb.rpc('school_remove_player', { p_token: token, p_player: id });
+    if (r.data && r.data.error === 'session_expiree') return leave(ERR.session_expiree);
+    load();
+  });
+
+  /* Dépôt d'une pièce : fichier → stockage privé, puis enregistrement via la fonction SQL */
+  $('roster').addEventListener('change', async function (e) {
+    var inp = e.target; if (inp.type !== 'file' || !inp.files[0]) return;
+    var file = inp.files[0], ext = EXT[file.type]; msg('');
+    if (!ext) { inp.value = ''; return msg('Formats acceptés : PDF, JPG ou PNG.'); }
+    if (file.size > MAX_BYTES) { inp.value = ''; return msg('Fichier trop lourd (5 Mo maximum).'); }
+    var state = inp.parentNode.querySelector('[data-state]');
+    inp.disabled = true; state.textContent = 'Envoi…';
+    var rnd = Array.from(crypto.getRandomValues(new Uint8Array(8))).map(function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+    var path = schoolId + '/' + inp.dataset.player + '/' + inp.dataset.kind + '-' + rnd + '.' + ext;
+    try {
+      var up = await sb.storage.from('school-docs').upload(path, file, { contentType: file.type });
+      if (up.error) { console.error('Échec du dépôt d’une pièce :', up.error); msg('Dépôt impossible. Vérifiez votre connexion puis réessayez.'); if (inp.isConnected) state.textContent = 'À réessayer'; return; }
+      var r = await sb.rpc('school_register_doc', { p_token: token, p_player: inp.dataset.player, p_kind: inp.dataset.kind, p_path: path });
+      if (r.error || !r.data) { console.error('Échec de l’enregistrement de la pièce :', r.error); msg('La pièce a été déposée mais son rattachement au dossier n’a pas été confirmé. Actualisez la page avant de réessayer.'); if (inp.isConnected) state.textContent = 'Confirmation requise'; return; }
+      if (r.data.error) {
+        if (r.data.error === 'session_expiree') return leave(ERR.session_expiree);
+        msg(ERR[r.data.error] || 'La pièce n’a pas pu être ajoutée au dossier.');
+        if (inp.isConnected) state.textContent = 'À réessayer';
+        return;
+      }
+      await load();
+    } catch (error) {
+      console.error('Erreur réseau pendant le dépôt d’une pièce :', error);
+      msg('Envoi interrompu. Vérifiez votre connexion et l’état du dossier avant de réessayer.');
+      if (inp.isConnected) state.textContent = 'À vérifier';
+    } finally {
+      if (inp.isConnected) inp.disabled = false;
+    }
+  });
+
+  // Documents officiels : le bouton ne s'active que si le PDF existe dans /telechargements/
+  document.querySelectorAll('a[download]').forEach(function (a) {
+    fetch(a.getAttribute('href'), { method: 'HEAD' }).then(function (r) {
+      if (!r.ok) throw 0;
+    }).catch(function () {
+      a.removeAttribute('href'); a.removeAttribute('download');
+      a.setAttribute('aria-disabled', 'true'); a.classList.add('opacity-50', 'cursor-not-allowed');
+      a.textContent += ' (bientôt disponible)';
+    });
+  });
+
+  if (token) load(); else view('login');
+
+  sb.channel('school-matches-live').on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, function () {
+    if (!currentSchool) return;
+    clearTimeout(matchRefreshTimer);
+    matchRefreshTimer = setTimeout(function () { loadLeague(currentSchool); }, 600);
+  }).subscribe();
+})();
+</script>
+</body>
+</html>
