@@ -536,7 +536,7 @@ COMMIT;
 
 -- Pour l'acces username « Joachimdik »:
 -- 1. Creer l'utilisateur dans Supabase Dashboard > Authentication > Users,
---    avec l'adresse joachimdik@kfl-admin.invalid et definir son mot de passe
+--    avec l'adresse joachimdik@kfl-admin.com et definir son mot de passe
 --    directement dans Supabase. Ne jamais inscrire le mot de passe dans ce fichier.
 -- 2. Executer ce bloc pour autoriser ce compte comme administrateur:
 -- DO $$
@@ -544,9 +544,9 @@ COMMIT;
 -- BEGIN
 --   SELECT id INTO admin_user_id
 --   FROM auth.users
---   WHERE email = lower('joachimdik@kfl-admin.invalid');
+--   WHERE email = lower('joachimdik@kfl-admin.com');
 --   IF admin_user_id IS NULL THEN
---     RAISE EXCEPTION 'Creer d abord joachimdik@kfl-admin.invalid dans Supabase Auth';
+--     RAISE EXCEPTION 'Creer d abord joachimdik@kfl-admin.com dans Supabase Auth';
 --   END IF;
 --   INSERT INTO public.kfl_admins (user_id)
 --   VALUES (admin_user_id)

@@ -453,7 +453,7 @@ h1,h2,h3,.d{font-family:Anton,Impact,'Arial Narrow',sans-serif;font-weight:400;l
     button.disabled = true; button.textContent = 'Connexion…';
     try {
       var username = $('username').value.trim();
-      var email = username.indexOf('@') >= 0 ? username : username.toLowerCase() + '@kfl-admin.invalid';
+      var email = username.indexOf('@') >= 0 ? username : username.toLowerCase() + '@kfl-admin.com';
       if (username.indexOf('@') < 0 && !/^[a-z0-9._-]+$/i.test(username)) {
         throw new Error('Saisissez un nom d’utilisateur valide.');
       }
