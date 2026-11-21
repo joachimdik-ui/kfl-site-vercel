@@ -534,6 +534,22 @@ USING (bucket_id = 'school-docs' AND public.is_kfl_admin());
 
 COMMIT;
 
--- Apres execution, creer l'utilisateur dans Supabase Auth, puis l'autoriser:
--- INSERT INTO public.kfl_admins (user_id)
--- SELECT id FROM auth.users WHERE email = lower('admin@exemple.cd');
+-- Pour l'acces username « Joachimdik »:
+-- 1. Creer l'utilisateur dans Supabase Dashboard > Authentication > Users,
+--    avec l'adresse joachimdik@kfl-admin.invalid et definir son mot de passe
+--    directement dans Supabase. Ne jamais inscrire le mot de passe dans ce fichier.
+-- 2. Executer ce bloc pour autoriser ce compte comme administrateur:
+-- DO $$
+-- DECLARE admin_user_id uuid;
+-- BEGIN
+--   SELECT id INTO admin_user_id
+--   FROM auth.users
+--   WHERE email = lower('joachimdik@kfl-admin.invalid');
+--   IF admin_user_id IS NULL THEN
+--     RAISE EXCEPTION 'Creer d abord joachimdik@kfl-admin.invalid dans Supabase Auth';
+--   END IF;
+--   INSERT INTO public.kfl_admins (user_id)
+--   VALUES (admin_user_id)
+--   ON CONFLICT (user_id) DO NOTHING;
+-- END
+-- $$;
