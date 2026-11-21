@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#15112B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KFL Admin">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Administration | Kelasi Football League</title>
+<link rel="manifest" href="/admin/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/admin/icons/admin-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{cy:'#1AB0CB',pu:'#7A2A8E',ye:'#F9B81C',pk:'#F2557E',ink:'#15112B'},fontFamily:{d:['Anton','Impact','Arial Narrow','sans-serif'],b:['Barlow','system-ui','sans-serif']}}}}</script>
+<style>
+body{font-family:Barlow,system-ui,sans-serif;background:#f7f3ea;color:#17152c;line-height:1.55}
+h1,h2,h3,.d{font-family:Anton,Impact,'Arial Narrow',sans-serif;font-weight:400;line-height:.98;letter-spacing:.02em;text-transform:uppercase}
+:focus-visible{outline:3px solid #F9B81C;outline-offset:3px}
+.hidden{display:none!important}
+.field{width:100%;border:1px solid #cbd5e1;border-radius:.75rem;background:#fff;padding:.7rem .8rem}
+.nav-on{background:#f9b81c;color:#15112b}
+</style>
+</head>
+<body>
+<main id="login-view" class="grid min-h-svh place-items-center bg-ink px-4 py-12">
+  <form id="login-form" class="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl" novalidate>
+    <a href="/" class="text-sm font-bold text-slate-500 underline">← Retour au site KFL</a>
+    <p class="mt-7 text-xs font-bold uppercase tracking-[.18em] text-pu">Kelasi Football League</p>
+    <h1 class="mt-2 text-4xl">Administration</h1>
+    <p class="mt-3 text-slate-600">Connectez-vous avec un compte Supabase autorisé par l’équipe KFL.</p>
+    <button id="pwa-install" type="button" class="mt-5 hidden min-h-11 w-full rounded-full border border-ink px-4 font-bold text-ink">Installer l’application KFL</button>
+    <p id="pwa-help" class="mt-2 text-xs text-slate-500">Sur iPhone/iPad : menu Partager → « Sur l’écran d’accueil ».</p>
+    <p id="pwa-status" role="status" class="mt-2 hidden text-xs font-semibold text-pk"></p>
+    <label class="mt-6 block text-sm font-bold" for="email">Adresse e-mail</label>
+    <input class="field mt-1" id="email" name="email" type="email" autocomplete="username" required>
+    <label class="mt-4 block text-sm font-bold" for="password">Mot de passe</label>
+    <input class="field mt-1" id="password" name="password" type="password" autocomplete="current-password" required>
+    <p id="login-error" role="alert" class="mt-4 hidden rounded-xl bg-pk/15 p-3 text-sm font-semibold"></p>
+    <button id="login-submit" class="mt-5 min-h-12 w-full rounded-full bg-ye font-bold">Se connecter</button>
+  </form>
+</main>
+
+<div id="admin-view" class="hidden min-h-svh">
+  <header class="bg-ink text-white">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-4">
+      <a href="/" class="rounded-full border border-white/30 px-4 py-2 text-sm font-semibold">← Site KFL</a>
+      <div class="mr-auto">
+        <p class="text-xs font-bold uppercase tracking-[.16em] text-ye">Espace sécurisé</p>
+        <h1 class="text-3xl sm:text-4xl">Administration KFL</h1>
+      </div>
+      <span id="admin-email" class="hidden text-sm text-white/75 sm:inline"></span>
+      <button id="refresh" class="min-h-11 rounded-full border border-white/30 px-4 text-sm font-bold">Actualiser</button>
+      <button id="logout" class="min-h-11 rounded-full bg-white/10 px-4 text-sm font-bold">Déconnexion</button>
+    </div>
+    <nav id="tabs" aria-label="Administration" class="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 pb-4 text-sm font-bold">
+      <button class="nav-on shrink-0 rounded-full px-4 py-2" data-tab="overview">Vue d’ensemble</button>
+      <button class="shrink-0 rounded-full border border-white/30 px-4 py-2" data-tab="requests">Demandes d’écoles</button>
+      <button class="shrink-0 rounded-full border border-white/30 px-4 py-2" data-tab="schools">Écoles & documents</button>
+      <button class="shrink-0 rounded-full border border-white/30 px-4 py-2" data-tab="matches">Matchs & scores</button>
+      <button class="shrink-0 rounded-full border border-white/30 px-4 py-2" data-tab="audit">Historique admin</button>
+    </nav>
+    <div class="flex h-1.5" aria-hidden="true"><i class="flex-1 bg-cy"></i><i class="flex-1 bg-pu"></i><i class="flex-1 bg-ye"></i><i class="flex-1 bg-pk"></i></div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-6 pb-16">
+    <p id="notice" role="status" aria-live="polite" class="mb-5 hidden rounded-xl p-3 font-semibold"></p>
+    <section id="page-overview" data-page="overview">
+      <h2 class="text-3xl">Vue d’ensemble</h2>
+      <div id="metrics" class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"></div>
+      <div class="mt-7 grid gap-5 lg:grid-cols-2">
+        <article class="rounded-2xl bg-white p-5 shadow">
+          <h3 class="text-2xl">Demandes récentes</h3>
+          <div id="overview-requests" class="mt-4 grid gap-2"></div>
+        </article>
+        <article class="rounded-2xl bg-white p-5 shadow">
+          <h3 class="text-2xl">Prochains matchs</h3>
+          <div id="overview-matches" class="mt-4 grid gap-2"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="page-requests" data-page="requests" class="hidden">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div><h2 class="text-3xl">Demandes d’inscription</h2><p class="mt-1 text-slate-600">La validation crée l’école et génère son code d’accès.</p></div>
+        <select id="request-filter" class="field max-w-xs"><option value="">Tous les statuts</option><option value="nouvelle">Nouvelle</option><option value="en_cours">En cours</option><option value="validee">Validée</option><option value="refusee">Refusée</option></select>
+      </div>
+      <div id="request-list" class="mt-5 grid gap-3"></div>
+    </section>
+
+    <section id="page-schools" data-page="schools" class="hidden">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div><h2 class="text-3xl">Écoles inscrites & dossiers</h2><p class="mt-1 text-slate-600">Les pièces s’ouvrent avec un lien privé temporaire.</p></div>
+        <input id="school-search" class="field max-w-xs" type="search" placeholder="Rechercher une école ou un joueur">
+      </div>
+      <div id="school-list" class="mt-5 grid gap-4"></div>
+    </section>
+
+    <section id="page-matches" data-page="matches" class="hidden">
+      <div class="grid gap-6 xl:grid-cols-[minmax(300px,.8fr)_minmax(0,1.2fr)]">
+        <form id="match-form" class="h-fit rounded-2xl bg-white p-5 shadow">
+          <div class="flex items-start justify-between gap-3">
+            <div><h2 id="match-form-title" class="text-3xl">Créer un match</h2><p class="mt-1 text-sm text-slate-600">Calendrier, statut et résultat public.</p></div>
+            <button id="match-reset" type="button" class="text-sm font-bold underline">Effacer</button>
+          </div>
+          <input type="hidden" name="id">
+          <label class="mt-4 block text-sm font-bold">District<select name="district" class="field mt-1" required><option value="">Choisir</option><option>Lukunga</option><option>Funa</option><option>Mont-Amba</option><option>Tshangu</option></select></label>
+          <div class="mt-3 grid grid-cols-2 gap-3">
+            <label class="text-sm font-bold">Poule<select name="group_stage" class="field mt-1" required><option>A</option><option>B</option><option>C</option><option>D</option></select></label>
+            <label class="text-sm font-bold">Journée<input name="matchday" class="field mt-1" type="number" min="1" required></label>
+          </div>
+          <label class="mt-3 block text-sm font-bold">Équipe A<select name="team_a_id" id="team-a" class="field mt-1" required></select></label>
+          <label class="mt-3 block text-sm font-bold">Équipe B<select name="team_b_id" id="team-b" class="field mt-1" required></select></label>
+          <label class="mt-3 block text-sm font-bold">Date et heure<input name="match_date" class="field mt-1" type="datetime-local"></label>
+          <div class="mt-3 grid grid-cols-2 gap-3">
+            <label class="text-sm font-bold">Score A<input name="score_a" class="field mt-1" type="number" min="0" placeholder="—"></label>
+            <label class="text-sm font-bold">Score B<input name="score_b" class="field mt-1" type="number" min="0" placeholder="—"></label>
+          </div>
+          <label class="mt-3 block text-sm font-bold">Statut<select name="status" class="field mt-1" required><option value="programme">Programmé</option><option value="en_cours">En cours</option><option value="termine">Terminé</option><option value="reporte">Reporté</option></select></label>
+          <button class="mt-5 min-h-12 w-full rounded-full bg-ink font-bold text-white">Enregistrer le match</button>
+        </form>
+        <div>
+          <h2 class="text-3xl">Calendrier des matchs</h2>
+          <div id="match-list" class="mt-4 grid gap-3"></div>
+          <form id="stat-form" class="mt-6 hidden rounded-2xl bg-ink p-5 text-white">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div><h3 class="text-2xl">Feuille de match</h3><p id="stat-match-label" class="mt-1 text-sm text-white/70"></p></div>
+              <button id="stat-close" type="button" class="text-sm font-bold underline">Fermer</button>
+            </div>
+            <input type="hidden" name="match_id">
+            <label class="mt-4 block text-sm font-bold">Joueur<select name="player_id" id="stat-player" class="field mt-1 text-ink" required></select></label>
+            <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <label class="text-sm font-bold">Buts<input name="goals" class="field mt-1 text-ink" type="number" min="0" value="0" required></label>
+              <label class="text-sm font-bold">Passes<input name="assists" class="field mt-1 text-ink" type="number" min="0" value="0" required></label>
+              <label class="text-sm font-bold">Cartons jaunes<input name="yellow_cards" class="field mt-1 text-ink" type="number" min="0" value="0" required></label>
+              <label class="text-sm font-bold">Cartons rouges<input name="red_cards" class="field mt-1 text-ink" type="number" min="0" value="0" required></label>
+            </div>
+            <button class="mt-4 min-h-11 rounded-full bg-ye px-5 font-bold text-ink">Enregistrer la feuille</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-audit" data-page="audit" class="hidden">
+      <h2 class="text-3xl">Historique des actions</h2>
+      <p class="mt-1 text-slate-600">Les 100 dernières opérations effectuées depuis l’espace admin.</p>
+      <div id="audit-list" class="mt-5 grid gap-2"></div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="/admin/config.js"></script>
+<script>
+(function () {
+  var K = window.KFL || {}, $ = function (id) { return document.getElementById(id); };
+  var DISTRICTS = ['Lukunga', 'Funa', 'Mont-Amba', 'Tshangu'];
+  var DOC_LABELS = { identite: 'Carte d’élève', scolarite: 'Certificat de scolarité', medical: 'Certificat médical' };
+  var D = { requests: [], schools: [], matches: [], players: [], match_stats: [], audit: [] };
+  var sb, installPrompt = null;
+
+  function esc(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function message(text, error) {
+    var n = $('notice');
+    n.textContent = text || '';
+    n.className = text ? 'mb-5 rounded-xl p-3 font-semibold ' + (error ? 'bg-pk/20 text-ink' : 'bg-emerald-100 text-emerald-950') : 'mb-5 hidden rounded-xl p-3 font-semibold';
+  }
+  function labelStatus(status) {
+    return ({ nouvelle: 'Nouvelle', en_cours: 'En cours', validee: 'Validée', refusee: 'Refusée',
+      incomplet: 'Incomplet', en_attente: 'En attente', valide: 'Validé', programme: 'Programmé',
+      en_cours_match: 'En cours', termine: 'Terminé', reporte: 'Reporté', fourni: 'À vérifier',
+      manquant: 'Manquant' })[status] || status || '—';
+  }
+  function dateTime(value) {
+    if (!value) return 'Date à confirmer';
+    return new Date(value).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Africa/Kinshasa' });
+  }
+  function localDateTime(value) {
+    if (!value) return '';
+    var d = new Date(value);
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  }
+  function schoolName(id) {
+    var s = D.schools.find(function (x) { return x.id === id; });
+    return s ? s.name : 'École inconnue';
+  }
+  function matchById(id) {
+    return D.matches.find(function (m) { return m.id === id; });
+  }
+  async function rpc(name, args) {
+    var result = await sb.rpc(name, args || {});
+    if (result.error) throw result.error;
+    return result.data;
+  }
+  async function load() {
+    var data = await rpc('kfl_admin_dashboard');
+    D = {
+      requests: data.requests || [],
+      schools: data.schools || [],
+      matches: data.matches || [],
+      players: data.players || [],
+      match_stats: data.match_stats || [],
+      audit: data.audit || []
+    };
+    render();
+  }
+  async function action(name, args, success) {
+    message('');
+    try {
+      await rpc(name, args);
+      await load();
+      message(success || 'Modifications enregistrées.');
+      return true;
+    } catch (error) {
+      console.error('Échec de l’action admin KFL :', error);
+      message(error.message || 'Action impossible. Vérifiez vos droits et réessayez.', true);
+      return false;
+    }
+  }
+  function render() {
+    renderMetrics();
+    renderOverview();
+    renderRequests();
+    renderSchools();
+    renderMatches();
+    renderAudit();
+    fillSchoolSelects();
+  }
+  function renderMetrics() {
+    var pending = D.requests.filter(function (r) { return r.status === 'nouvelle' || r.status === 'en_cours'; }).length;
+    var waiting = D.schools.filter(function (s) { return s.status !== 'valide'; }).length;
+    var docs = D.players.reduce(function (n, p) {
+      return n + (p.documents || []).filter(function (d) { return d.status !== 'valide'; }).length;
+    }, 0);
+    var upcoming = D.matches.filter(function (m) { return m.status === 'programme'; }).length;
+    var cards = [['Demandes à traiter', pending], ['Écoles inscrites', D.schools.length], ['Pièces à vérifier', docs], ['Matchs programmés', upcoming]];
+    $('metrics').innerHTML = cards.map(function (x) {
+      return '<article class="rounded-2xl bg-white p-5 shadow"><p class="text-sm font-semibold text-slate-600">' + x[0] +
+        '</p><p class="d mt-2 text-4xl">' + x[1] + '</p></article>';
+    }).join('');
+  }
+  function renderOverview() {
+    var requests = D.requests.filter(function (r) { return r.status === 'nouvelle' || r.status === 'en_cours'; }).slice(0, 5);
+    $('overview-requests').innerHTML = requests.length ? requests.map(function (r) {
+      return '<div class="flex flex-wrap items-center gap-2 rounded-xl bg-slate-50 p-3"><b class="mr-auto">' + esc(r.school_name) +
+        '</b><span class="text-sm text-slate-600">' + esc(r.district) + ' · ' + esc(labelStatus(r.status)) + '</span></div>';
+    }).join('') : '<p class="text-sm text-slate-600">Aucune demande en attente.</p>';
+    var upcoming = D.matches.filter(function (m) { return m.status === 'programme' || m.status === 'en_cours'; })
+      .sort(function (a, b) { return String(a.match_date || 'z').localeCompare(String(b.match_date || 'z')); }).slice(0, 5);
+    $('overview-matches').innerHTML = upcoming.length ? upcoming.map(function (m) {
+      return '<div class="rounded-xl bg-slate-50 p-3"><b>' + esc(schoolName(m.team_a_id)) + ' – ' +
+        esc(schoolName(m.team_b_id)) + '</b><p class="text-sm text-slate-600">' +
+        esc(m.district) + ' · Journée ' + esc(m.matchday) + ' · ' + esc(dateTime(m.match_date)) + '</p></div>';
+    }).join('') : '<p class="text-sm text-slate-600">Aucun match à venir.</p>';
+  }
+  function renderRequests() {
+    var f = $('request-filter').value;
+    var rows = D.requests.filter(function (r) { return !f || r.status === f; });
+    $('request-list').innerHTML = rows.length ? rows.map(function (r) {
+      var actions = r.status === 'validee' || r.status === 'refusee' ? '' :
+        '<button data-request-action="approve" data-id="' + esc(r.id) + '" class="min-h-10 rounded-full bg-ye px-4 text-sm font-bold">Valider et créer l’école</button>' +
+        '<button data-request-action="reject" data-id="' + esc(r.id) + '" class="min-h-10 rounded-full border border-slate-300 px-4 text-sm font-bold">Refuser</button>';
+      return '<article class="rounded-2xl bg-white p-5 shadow"><div class="flex flex-wrap items-start gap-3">' +
+        '<div class="mr-auto"><h3 class="text-2xl">' + esc(r.school_name) + '</h3><p class="text-sm text-slate-600">' +
+        esc(r.district) + ' · ' + esc(labelStatus(r.status)) + ' · ' + esc(dateTime(r.created_at)) + '</p></div>' +
+        '<div class="flex flex-wrap gap-2">' + actions + '</div></div>' +
+        '<div class="mt-4 grid gap-2 text-sm sm:grid-cols-2"><p><b>Contact :</b> ' + esc(r.contact_name) + ' · ' + esc(r.contact_role) + '</p>' +
+        '<p><b>Téléphone :</b> ' + esc(r.phone) + '</p><p><b>E-mail :</b> <a class="underline" href="mailto:' + esc(r.email) + '">' + esc(r.email) + '</a></p>' +
+        '<p><b>Consentement :</b> ' + esc(dateTime(r.consent_at)) + '</p></div>' +
+        (r.message ? '<p class="mt-3 rounded-xl bg-slate-50 p-3 text-sm">' + esc(r.message) + '</p>' : '') + '</article>';
+    }).join('') : '<p class="rounded-2xl bg-white p-5 text-slate-600">Aucune demande pour ce filtre.</p>';
+  }
+  function renderSchools() {
+    var q = $('school-search').value.trim().toLocaleLowerCase('fr');
+    var rows = D.schools.filter(function (s) { return !q || s.name.toLocaleLowerCase('fr').indexOf(q) !== -1; });
+    $('school-list').innerHTML = rows.length ? rows.map(function (s) {
+      var players = D.players.filter(function (p) { return p.school_id === s.id; });
+      var docHtml = players.length ? players.map(function (p) {
+        var docs = p.documents || [];
+        return '<div class="mt-3 rounded-xl border border-slate-200 p-3"><div class="flex flex-wrap items-center gap-2">' +
+          '<b class="mr-auto">' + esc(p.full_name) + '</b><span class="text-sm text-slate-600">N° ' + esc(p.jersey_number) + ' · ' + esc(p.position) + ' · né(e) le ' +
+          esc(new Date(p.birth_date + 'T00:00:00').toLocaleDateString('fr-FR')) + '</span></div>' +
+          '<div class="mt-2 grid gap-2 md:grid-cols-3">' +
+          ['identite', 'scolarite', 'medical'].map(function (kind) {
+            var d = docs.find(function (x) { return x.kind === kind; });
+            if (!d) return '<div class="rounded-lg bg-slate-50 p-3 text-sm"><b>' + esc(DOC_LABELS[kind]) + '</b><p class="mt-1 text-slate-500">Non transmis</p></div>';
+            var stateClass = d.status === 'valide' ? 'text-emerald-700' : 'text-amber-700';
+            var buttons = '<button data-doc-open="' + esc(d.id) + '" class="underline">Ouvrir</button> ' +
+              (d.status === 'valide' ? '' : '<button data-doc-review="approve" data-id="' + esc(d.id) + '" class="font-bold text-emerald-700 underline">Valider</button>') +
+              '<button data-doc-review="correction" data-id="' + esc(d.id) + '" class="font-bold text-pk underline">À corriger</button>';
+            return '<div class="rounded-lg bg-slate-50 p-3 text-sm"><div class="flex flex-wrap justify-between gap-1"><b>' + esc(DOC_LABELS[kind]) +
+              '</b><span class="' + stateClass + '">' + esc(labelStatus(d.status)) + '</span></div>' +
+              '<p class="mt-1 text-xs text-slate-500">Transmis : ' + esc(dateTime(d.uploaded_at)) + '</p>' +
+              (d.review_note ? '<p class="mt-1 text-xs text-pk">Correction : ' + esc(d.review_note) + '</p>' : '') +
+              '<div class="mt-2 flex flex-wrap gap-3">' + buttons + '</div></div>';
+          }).join('') + '</div></div>';
+      }).join('') : '<p class="mt-3 text-sm text-slate-600">Aucun joueur enregistré.</p>';
+      return '<article class="rounded-2xl bg-white p-5 shadow"><div class="flex flex-wrap items-center gap-3">' +
+        '<div class="mr-auto"><h3 class="text-2xl">' + esc(s.name) + '</h3><p class="text-sm text-slate-600">District ' + esc(s.district) +
+        ' · ' + players.length + ' joueur(s) · Code : <span class="font-mono font-bold">' + esc(s.code_10_char) + '</span></p></div>' +
+        '<label class="text-sm font-semibold">Inscription<select data-school-status="' + esc(s.id) + '" class="ml-2 rounded-lg border border-slate-300 bg-white px-2 py-2">' +
+        ['incomplet', 'en_attente', 'valide'].map(function (status) {
+          return '<option value="' + status + '"' + (s.status === status ? ' selected' : '') + '>' + esc(labelStatus(status)) + '</option>';
+        }).join('') + '</select></label>' +
+        '<button data-school-delete="' + esc(s.id) + '" class="rounded-full border border-pk px-4 py-2 text-sm font-bold text-pk">Supprimer</button></div>' +
+        '<div class="mt-4">' + docHtml + '</div></article>';
+    }).join('') : '<p class="rounded-2xl bg-white p-5 text-slate-600">Aucune école trouvée.</p>';
+  }
+  function fillSchoolSelects() {
+    var choices = '<option value="">Choisir une école</option>' + D.schools.map(function (s) {
+      return '<option value="' + esc(s.id) + '">' + esc(s.name) + ' · ' + esc(s.district) + '</option>';
+    }).join('');
+    var a = $('team-a').value, b = $('team-b').value;
+    $('team-a').innerHTML = choices; $('team-b').innerHTML = choices;
+    $('team-a').value = a; $('team-b').value = b;
+  }
+  function renderMatches() {
+    var rows = D.matches.slice().sort(function (a, b) {
+      return String(a.match_date || 'z').localeCompare(String(b.match_date || 'z'));
+    });
+    $('match-list').innerHTML = rows.length ? rows.map(function (m) {
+      return '<article class="rounded-2xl bg-white p-4 shadow"><div class="flex flex-wrap items-center gap-3">' +
+        '<div class="mr-auto"><p class="text-xs font-bold uppercase tracking-wide text-slate-500">' + esc(m.district) + ' · Poule ' + esc(m.group_stage) +
+        ' · Journée ' + esc(m.matchday) + ' · ' + esc(labelStatus(m.status)) + '</p><p class="mt-1 font-bold">' +
+        esc(schoolName(m.team_a_id)) + ' <span class="d text-xl">' + (m.score_a == null ? 'vs' : esc(m.score_a) + ' – ' + esc(m.score_b)) + '</span> ' +
+        esc(schoolName(m.team_b_id)) + '</p><p class="text-sm text-slate-600">' + esc(dateTime(m.match_date)) + '</p></div>' +
+        '<button data-match-action="edit" data-id="' + esc(m.id) + '" class="text-sm font-bold underline">Modifier</button>' +
+        '<button data-match-action="stats" data-id="' + esc(m.id) + '" class="text-sm font-bold underline">Feuille</button>' +
+        '<button data-match-action="delete" data-id="' + esc(m.id) + '" class="text-sm font-bold text-pk underline">Supprimer</button></div></article>';
+    }).join('') : '<p class="rounded-2xl bg-white p-5 text-slate-600">Aucun match enregistré.</p>';
+  }
+  function renderAudit() {
+    var names = { approve_school_request: 'Validation de demande', refuse_school_request: 'Refus de demande',
+      set_school_status: 'Changement de statut école', delete_school: 'Suppression école',
+      approve_document: 'Validation de document', request_document_correction: 'Correction demandée',
+      create_match: 'Création de match', update_match: 'Modification de match',
+      delete_match: 'Suppression de match', update_match_stats: 'Mise à jour de feuille de match' };
+    $('audit-list').innerHTML = D.audit.length ? D.audit.map(function (a) {
+      return '<article class="flex flex-wrap items-center gap-2 rounded-xl bg-white p-4 shadow-sm"><b class="mr-auto">' +
+        esc(names[a.action] || a.action) + '</b><span class="text-sm text-slate-600">' + esc(a.entity_type) + ' · ' +
+        esc(a.entity_id) + ' · ' + esc(dateTime(a.created_at)) + '</span></article>';
+    }).join('') : '<p class="rounded-2xl bg-white p-5 text-slate-600">Aucune action enregistrée.</p>';
+  }
+  function showPage(name) {
+    document.querySelectorAll('[data-page]').forEach(function (page) {
+      page.classList.toggle('hidden', page.getAttribute('data-page') !== name);
+    });
+    document.querySelectorAll('[data-tab]').forEach(function (button) {
+      var active = button.getAttribute('data-tab') === name;
+      button.classList.toggle('nav-on', active);
+      button.classList.toggle('border', !active);
+      button.classList.toggle('border-white/30', !active);
+    });
+  }
+  function resetMatchForm() {
+    $('match-form').reset();
+    $('match-form').elements.id.value = '';
+    $('match-form-title').textContent = 'Créer un match';
+  }
+  function editMatch(match) {
+    var f = $('match-form');
+    f.elements.id.value = match.id;
+    f.elements.district.value = match.district;
+    f.elements.group_stage.value = match.group_stage;
+    f.elements.matchday.value = match.matchday;
+    f.elements.team_a_id.value = match.team_a_id;
+    f.elements.team_b_id.value = match.team_b_id;
+    f.elements.match_date.value = localDateTime(match.match_date);
+    f.elements.status.value = match.status;
+    f.elements.score_a.value = match.score_a == null ? '' : match.score_a;
+    f.elements.score_b.value = match.score_b == null ? '' : match.score_b;
+    $('match-form-title').textContent = 'Modifier le match';
+    showPage('matches');
+    f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function openStatForm(match) {
+    var form = $('stat-form');
+    form.elements.match_id.value = match.id;
+    $('stat-match-label').textContent = schoolName(match.team_a_id) + ' – ' + schoolName(match.team_b_id);
+    var players = D.players.filter(function (p) { return p.school_id === match.team_a_id || p.school_id === match.team_b_id; });
+    $('stat-player').innerHTML = players.map(function (p) {
+      return '<option value="' + esc(p.id) + '">' + esc(p.full_name) + ' · ' + esc(schoolName(p.school_id)) + ' · N° ' + esc(p.jersey_number) + '</option>';
+    }).join('');
+    if (!players.length) {
+      $('stat-player').innerHTML = '<option value="">Aucun joueur dans le roster des deux écoles</option>';
+    }
+    form.classList.remove('hidden');
+    $('stat-player').dispatchEvent(new Event('change'));
+    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  async function startAdmin(session) {
+    $('admin-email').textContent = session.user.email || '';
+    try {
+      await load();
+      $('login-view').classList.add('hidden');
+      $('admin-view').classList.remove('hidden');
+      showPage('overview');
+    } catch (error) {
+      console.error('Accès au tableau de bord admin refusé ou indisponible :', error);
+      await sb.auth.signOut();
+      $('login-error').textContent = 'Accès refusé ou service indisponible. Vérifiez que ce compte est autorisé dans public.kfl_admins et que la migration SQL a été exécutée.';
+      $('login-error').classList.remove('hidden');
+      $('admin-view').classList.add('hidden');
+      $('login-view').classList.remove('hidden');
+    }
+  }
+
+  if (!(window.supabase && K.url && K.anonKey)) {
+    $('login-error').textContent = 'Configuration Supabase absente.';
+    $('login-error').classList.remove('hidden');
+    return;
+  }
+  sb = supabase.createClient(K.url, K.anonKey);
+
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    navigator.serviceWorker.register('/admin/sw.js', { scope: '/admin/' }).catch(function (error) {
+      console.error('Installation du service worker admin impossible :', error);
+      $('pwa-status').textContent = 'L’installation PWA est indisponible sur ce navigateur ou cet hébergement.';
+      $('pwa-status').classList.remove('hidden');
+    });
+  }
+  window.addEventListener('beforeinstallprompt', function (event) {
+    event.preventDefault();
+    installPrompt = event;
+    $('pwa-install').classList.remove('hidden');
+  });
+  $('pwa-install').addEventListener('click', async function () {
+    if (!installPrompt) {
+      $('pwa-status').textContent = 'Utilisez le menu de votre navigateur pour installer ou ajouter l’application à l’écran d’accueil.';
+      $('pwa-status').classList.remove('hidden');
+      return;
+    }
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    installPrompt = null;
+    $('pwa-install').classList.add('hidden');
+  });
+  window.addEventListener('appinstalled', function () {
+    $('pwa-install').classList.add('hidden');
+    $('pwa-status').textContent = 'Application KFL installée.';
+    $('pwa-status').classList.remove('hidden');
+  });
+
+  $('login-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    var button = $('login-submit'), errorBox = $('login-error');
+    errorBox.classList.add('hidden');
+    button.disabled = true; button.textContent = 'Connexion…';
+    try {
+      var result = await sb.auth.signInWithPassword({
+        email: $('email').value.trim(),
+        password: $('password').value
+      });
+      if (result.error) throw result.error;
+      await startAdmin(result.data.session);
+    } catch (error) {
+      console.error('Connexion admin impossible :', error);
+      errorBox.textContent = error.message || 'Connexion impossible. Vérifiez vos identifiants.';
+      errorBox.classList.remove('hidden');
+    } finally {
+      button.disabled = false; button.textContent = 'Se connecter';
+    }
+  });
+  $('logout').addEventListener('click', async function () {
+    var result = await sb.auth.signOut();
+    if (result.error) return message(result.error.message, true);
+    $('admin-view').classList.add('hidden'); $('login-view').classList.remove('hidden');
+  });
+  $('refresh').addEventListener('click', async function () {
+    try { await load(); message('Données actualisées.'); }
+    catch (error) { console.error('Actualisation admin impossible :', error); message(error.message, true); }
+  });
+  $('tabs').addEventListener('click', function (event) {
+    var button = event.target.closest('[data-tab]');
+    if (button) showPage(button.getAttribute('data-tab'));
+  });
+  $('request-filter').addEventListener('change', renderRequests);
+  $('school-search').addEventListener('input', renderSchools);
+  $('request-list').addEventListener('click', async function (event) {
+    var button = event.target.closest('[data-request-action]');
+    if (!button) return;
+    var approve = button.getAttribute('data-request-action') === 'approve';
+    if (!confirm(approve ? 'Valider cette demande et créer le dossier de l’école ?' : 'Refuser cette demande ?')) return;
+    try {
+      var result = await rpc('kfl_admin_review_school_request', {
+        p_request_id: button.getAttribute('data-id'),
+        p_decision: approve ? 'validee' : 'refusee'
+      });
+      await load();
+      message(approve ? 'École créée. Code d’accès à transmettre : ' + result.access_code : 'Demande refusée.');
+    } catch (error) {
+      console.error('Traitement de demande impossible :', error);
+      message(error.message, true);
+    }
+  });
+  $('school-list').addEventListener('change', async function (event) {
+    var select = event.target.closest('[data-school-status]');
+    if (!select) return;
+    await action('kfl_admin_set_school_status', {
+      p_school_id: select.getAttribute('data-school-status'),
+      p_status: select.value
+    }, 'Statut de l’école mis à jour.');
+  });
+  $('school-list').addEventListener('click', async function (event) {
+    var remove = event.target.closest('[data-school-delete]');
+    var open = event.target.closest('[data-doc-open]');
+    var review = event.target.closest('[data-doc-review]');
+    if (remove) {
+      if (!confirm('Supprimer cette école ? La base refusera la suppression si elle a des joueurs ou des matchs.')) return;
+      await action('kfl_admin_delete_school', { p_school_id: remove.getAttribute('data-school-delete') }, 'École supprimée.');
+    } else if (review) {
+      var approved = review.getAttribute('data-doc-review') === 'approve';
+      var note = approved ? null : prompt('Indiquez la correction attendue pour cette pièce :');
+      if (!approved && (!note || !note.trim())) return;
+      await action('kfl_admin_review_document', {
+        p_document_id: review.getAttribute('data-id'),
+        p_approved: approved,
+        p_note: note
+      }, approved ? 'Document validé.' : 'Correction demandée.');
+    } else if (open) {
+      var tab = window.open('about:blank', '_blank');
+      if (!tab) return message('Autorisez les fenêtres pop-up pour ouvrir le document.', true);
+      try {
+        var doc = D.players.reduce(function (found, p) {
+          return found || (p.documents || []).find(function (x) { return x.id === open.getAttribute('data-doc-open'); });
+        }, null);
+        if (!doc) throw new Error('Document introuvable.');
+        var signed = await sb.storage.from('school-docs').createSignedUrl(doc.file_path, 300);
+        if (signed.error) throw signed.error;
+        tab.location.href = signed.data.signedUrl;
+      } catch (error) {
+        tab.close();
+        console.error('Ouverture du document impossible :', error);
+        message(error.message || 'Document indisponible.', true);
+      }
+    }
+  });
+  $('match-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    var f = event.target, v = new FormData(f);
+    var date = v.get('match_date');
+    var scoreA = v.get('score_a'), scoreB = v.get('score_b');
+    var saved = await action('kfl_admin_save_match', {
+      p_id: v.get('id') || null,
+      p_district: v.get('district'),
+      p_group_stage: v.get('group_stage'),
+      p_matchday: Number(v.get('matchday')),
+      p_team_a_id: v.get('team_a_id'),
+      p_team_b_id: v.get('team_b_id'),
+      p_match_date: date ? new Date(date).toISOString() : null,
+      p_status: v.get('status'),
+      p_score_a: scoreA === '' ? null : Number(scoreA),
+      p_score_b: scoreB === '' ? null : Number(scoreB)
+    }, 'Match enregistré.');
+    if (saved) resetMatchForm();
+  });
+  $('match-reset').addEventListener('click', resetMatchForm);
+  $('match-list').addEventListener('click', async function (event) {
+    var button = event.target.closest('[data-match-action]');
+    if (!button) return;
+    var match = matchById(button.getAttribute('data-id'));
+    if (!match) return;
+    var actionType = button.getAttribute('data-match-action');
+    if (actionType === 'edit') editMatch(match);
+    else if (actionType === 'stats') openStatForm(match);
+    else if (actionType === 'delete' && confirm('Supprimer ce match et sa feuille de statistiques ?')) {
+      await action('kfl_admin_delete_match', { p_match_id: match.id }, 'Match supprimé.');
+    }
+  });
+  $('stat-close').addEventListener('click', function () { $('stat-form').classList.add('hidden'); });
+  $('stat-player').addEventListener('change', function () {
+    var matchId = $('stat-form').elements.match_id.value, playerId = this.value;
+    var row = D.match_stats.find(function (x) { return x.match_id === matchId && x.player_id === playerId; });
+    ['goals', 'assists', 'yellow_cards', 'red_cards'].forEach(function (key) {
+      $('stat-form').elements[key].value = row ? row[key] : 0;
+    });
+  });
+  $('stat-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    var f = event.target;
+    await action('kfl_admin_save_match_stat', {
+      p_match_id: f.elements.match_id.value,
+      p_player_id: f.elements.player_id.value,
+      p_goals: Number(f.elements.goals.value),
+      p_assists: Number(f.elements.assists.value),
+      p_yellow_cards: Number(f.elements.yellow_cards.value),
+      p_red_cards: Number(f.elements.red_cards.value)
+    }, 'Feuille de match enregistrée.');
+  });
+
+  sb.auth.getSession().then(function (result) {
+    if (result.error) {
+      console.error('Lecture de la session admin impossible :', result.error);
+      $('login-error').textContent = 'Impossible de vérifier la session. Rechargez la page.';
+      $('login-error').classList.remove('hidden');
+    } else if (result.data.session) startAdmin(result.data.session);
+  });
+})();
+</script>
+</body>
+</html>
